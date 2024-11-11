@@ -96,7 +96,7 @@ model {
 }
 
 generated quantities {
-    matrix[n_timesteps_post, n_treatment_regions] insample_fit;
+    matrix[n_timesteps_pre, n_treatment_regions] insample_fit;
     matrix[n_timesteps_post, n_treatment_regions] expected_counterfactual;
     matrix[n_timesteps_post, n_treatment_regions] predicted_counterfactual;
     matrix[n_timesteps_post, n_treatment_regions] estimated_treatment_effects;
@@ -111,7 +111,7 @@ generated quantities {
         expected_counterfactual[:, j] = (scaled_y_control_post * region_weights[j]) .* treatment_column_sds[j] + treatment_column_means[j];
         predicted_counterfactual[:, j] = to_vector(normal_rng(expected_counterfactual[:, j], sigma[j]));
         estimated_treatment_effects[:, j] = y_treatment_post[:, j] - predicted_counterfactual[:, j];
-        cumulative_treatment_effects[:, j] = cumulative_sum(estimated_treatment_effects[:, j]);
+        xZ[:, j] = cumulative_sum(estimated_treatment_effects[:, j]);
         estimated_lift[:, j] =  estimated_treatment_effects[:, j] ./ predicted_counterfactual[:, j];
         average_lift[j] = sum(estimated_treatment_effects[:, j]) / sum(predicted_counterfactual[:, j]); 
     }
